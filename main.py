@@ -23,8 +23,17 @@ curso = st.sidebar.selectbox("Curso", options=['Todos'] + sorted(df['Curso'].uni
 start_date = st.sidebar.date_input("Fecha inicio", df['Fecha Pago'].min())
 end_date = st.sidebar.date_input("Fecha fin", df['Fecha Pago'].max())
 
+# Filtro por monto de pago
+min_pago = st.sidebar.number_input("Pago mínimo", min_value=0.0, value=0.0)
+max_pago = st.sidebar.number_input("Pago máximo", min_value=0.0, value=float(df['Pago'].max()))
+
+# Convertir fechas a datetime64 para comparación
+start_date = pd.to_datetime(start_date)
+end_date = pd.to_datetime(end_date)
+
 # Aplicar filtros
 filtered_df = filter_data(df, nombre, curso, start_date, end_date)
+filtered_df = filtered_df[(filtered_df['Pago'] >= min_pago) & (filtered_df['Pago'] <= max_pago)]
 
 st.subheader("📋 Datos Filtrados")
 st.dataframe(filtered_df)
@@ -71,14 +80,17 @@ with st.form("nuevo_pago"):
     submitted = st.form_submit_button("Guardar")
 
     if submitted:
-        nuevo = {
-            'Nombres': nombre_nuevo,
-            'Curso': curso_nuevo,
-            'Fecha Pago': fecha_pago_nuevo,
-            'Fecha inicio': fecha_pago_nuevo,
-            'Pago': pago_nuevo,
-            'num clases': clases_nuevas,
-            'proximo pago': None
-        }
-        save_new_payment(DATA_FILE, nuevo)
-        st.success("✅ Pago agregado y guardado correctamente en el archivo CSV.")
+        if not nombre_nuevo or not curso_nuevo or pago_nuevo == 0.0 or clases_nuevas <= 0:
+            st.error("❌ Por favor, completa todos los campos obligatorios correctamente.")
+        else:
+            nuevo = {
+                'Nombres': nombre_nuevo,
+                'Curso': curso_nuevo,
+                'Fecha Pago': fecha_pago_nuevo,
+                'Fecha inicio': fecha_pago_nuevo,
+                'Pago': pago_nuevo,
+                'num clases': clases_nuevas,
+                'proximo pago': None
+            }
+            save_new_payment(DATA_FILE, nuevo)
+            st.success("✅ Pago agregado y guardado correctamente en el archivo CSV.")
