@@ -1,8 +1,12 @@
 # main.py
 import streamlit as st
-from utils import load_data, filter_data, generate_excel, generate_pdf, save_new_payment
 import pandas as pd
 from io import BytesIO
+
+from utils.load import load_data, save_new_payment
+from utils.filters import filter_data
+from utils.export_excel import generate_excel
+from utils.export_pdf import generate_pdf
 
 # Cargar datos desde CSV
 DATA_FILE = "Pagos estudiante - Pagos.csv"
